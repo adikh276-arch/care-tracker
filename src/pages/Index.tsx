@@ -1,14 +1,91 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState, useCallback } from "react";
+import { SelfCareEntry, saveEntry } from "@/lib/selfcare-data";
+import Screen1CheckIn from "@/components/screens/Screen1CheckIn";
+import Screen2Activities from "@/components/screens/Screen2Activities";
+import Screen3NoSelfCare from "@/components/screens/Screen3NoSelfCare";
+import Screen4Mood from "@/components/screens/Screen4Mood";
+import Screen5Statement from "@/components/screens/Screen5Statement";
+import Screen6Review from "@/components/screens/Screen6Review";
+import Screen7History from "@/components/screens/Screen7History";
+
+type Screen = "checkin" | "activities" | "noSelfCare" | "mood" | "statement" | "review" | "history";
 
 const Index = () => {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
-  );
+  const [screen, setScreen] = useState<Screen>("checkin");
+  const [date, setDate] = useState(new Date());
+  const [entry, setEntry] = useState<SelfCareEntry>({
+    date: new Date().toISOString().split("T")[0],
+    didSelfCare: null,
+    activities: [],
+    duration: "",
+    preventionReasons: [],
+    helpfulType: "",
+    mood: "",
+    moodEmoji: "",
+  });
+
+  const resetFlow = useCallback(() => {
+    const today = new Date();
+    setDate(today);
+    setEntry({
+      date: today.toISOString().split("T")[0],
+      didSelfCare: null,
+      activities: [],
+      duration: "",
+      preventionReasons: [],
+      helpfulType: "",
+      mood: "",
+      moodEmoji: "",
+    });
+    setScreen("checkin");
+  }, []);
+
+  const handleDateChange = (d: Date) => {
+    setDate(d);
+    setEntry((prev) => ({ ...prev, date: d.toISOString().split("T")[0] }));
+  };
+
+  const handleCheckIn = (didSelfCare: boolean) => {
+    setEntry((prev) => ({ ...prev, didSelfCare }));
+    setScreen(didSelfCare ? "activities" : "noSelfCare");
+  };
+
+  const handleActivities = (activities: string[], duration: string) => {
+    setEntry((prev) => ({ ...prev, activities, duration }));
+    setScreen("mood");
+  };
+
+  const handleNoSelfCare = (reasons: string[], helpfulType: string) => {
+    setEntry((prev) => ({ ...prev, preventionReasons: reasons, helpfulType }));
+    setScreen("mood");
+  };
+
+  const handleMood = (mood: string, emoji: string) => {
+    setEntry((prev) => ({ ...prev, mood, moodEmoji: emoji }));
+    setScreen("statement");
+  };
+
+  const handleStatementContinue = () => {
+    saveEntry(entry);
+    setScreen("review");
+  };
+
+  switch (screen) {
+    case "checkin":
+      return <Screen1CheckIn date={date} onDateChange={handleDateChange} onContinue={handleCheckIn} />;
+    case "activities":
+      return <Screen2Activities onContinue={handleActivities} />;
+    case "noSelfCare":
+      return <Screen3NoSelfCare onContinue={handleNoSelfCare} />;
+    case "mood":
+      return <Screen4Mood onContinue={handleMood} />;
+    case "statement":
+      return <Screen5Statement didSelfCare={entry.didSelfCare!} onContinue={handleStatementContinue} />;
+    case "review":
+      return <Screen6Review entry={entry} onEdit={resetFlow} onHistory={() => setScreen("history")} onHome={resetFlow} />;
+    case "history":
+      return <Screen7History onBack={() => setScreen("review")} />;
+  }
 };
 
 export default Index;
