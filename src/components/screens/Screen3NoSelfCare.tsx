@@ -19,7 +19,7 @@ const Screen3NoSelfCare = ({ onContinue }: Screen3Props) => {
   };
 
   return (
-    <MobileShell step={2} totalSteps={4}>
+    <MobileShell step={2} totalSteps={5}>
       <h1 className="font-display text-2xl font-bold tracking-tight">
         That's okay 💛
       </h1>

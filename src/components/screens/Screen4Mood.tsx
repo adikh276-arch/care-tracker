@@ -11,7 +11,7 @@ const Screen4Mood = ({ onContinue }: Screen4Props) => {
   const [selected, setSelected] = useState<number | null>(null);
 
   return (
-    <MobileShell step={3} totalSteps={4}>
+    <MobileShell step={4} totalSteps={5}>
       <h1 className="font-display text-2xl font-bold tracking-tight">
         How are you feeling? 🫧
       </h1>

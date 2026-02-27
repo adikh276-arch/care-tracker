@@ -27,7 +27,7 @@ const Screen6Review = ({ entry, onEdit, onHistory, onHome }: Screen6Props) => {
   if (entry.mood) rows.push({ label: "Mood", value: `${entry.moodEmoji} ${entry.mood}` });
 
   return (
-    <MobileShell step={4} totalSteps={4}>
+    <MobileShell step={5} totalSteps={5}>
       <h1 className="font-display text-2xl font-bold tracking-tight">
         Your Entry 📋
       </h1>

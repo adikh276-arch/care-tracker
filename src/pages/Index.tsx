@@ -2,13 +2,14 @@ import { useState, useCallback } from "react";
 import { SelfCareEntry, saveEntry } from "@/lib/selfcare-data";
 import Screen1CheckIn from "@/components/screens/Screen1CheckIn";
 import Screen2Activities from "@/components/screens/Screen2Activities";
+import Screen2bDuration from "@/components/screens/Screen2bDuration";
 import Screen3NoSelfCare from "@/components/screens/Screen3NoSelfCare";
 import Screen4Mood from "@/components/screens/Screen4Mood";
 import Screen5Statement from "@/components/screens/Screen5Statement";
 import Screen6Review from "@/components/screens/Screen6Review";
 import Screen7History from "@/components/screens/Screen7History";
 
-type Screen = "checkin" | "activities" | "noSelfCare" | "mood" | "statement" | "review" | "history";
+type Screen = "checkin" | "activities" | "duration" | "noSelfCare" | "mood" | "statement" | "review" | "history";
 
 const Index = () => {
   const [screen, setScreen] = useState<Screen>("checkin");
@@ -50,8 +51,13 @@ const Index = () => {
     setScreen(didSelfCare ? "activities" : "noSelfCare");
   };
 
-  const handleActivities = (activities: string[], duration: string) => {
-    setEntry((prev) => ({ ...prev, activities, duration }));
+  const handleActivities = (activities: string[]) => {
+    setEntry((prev) => ({ ...prev, activities }));
+    setScreen("duration");
+  };
+
+  const handleDuration = (duration: string) => {
+    setEntry((prev) => ({ ...prev, duration }));
     setScreen("mood");
   };
 
@@ -75,6 +81,8 @@ const Index = () => {
       return <Screen1CheckIn date={date} onDateChange={handleDateChange} onContinue={handleCheckIn} />;
     case "activities":
       return <Screen2Activities onContinue={handleActivities} />;
+    case "duration":
+      return <Screen2bDuration onContinue={handleDuration} />;
     case "noSelfCare":
       return <Screen3NoSelfCare onContinue={handleNoSelfCare} />;
     case "mood":
