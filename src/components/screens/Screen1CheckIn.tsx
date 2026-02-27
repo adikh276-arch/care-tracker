@@ -19,7 +19,7 @@ const Screen1CheckIn = ({ date, onDateChange, onContinue }: Screen1Props) => {
   const [answer, setAnswer] = useState<boolean | null>(null);
 
   return (
-    <MobileShell step={1} totalSteps={4}>
+    <MobileShell step={1} totalSteps={5}>
       <h1 className="font-display text-2xl font-bold tracking-tight">
         Self-Care Check-In 🌿
       </h1>
