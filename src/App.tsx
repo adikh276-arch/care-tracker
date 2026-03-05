@@ -12,6 +12,7 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+// Trigger build after environment variable setup
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
