@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { SelfCareEntry, saveEntryToDb } from "@/lib/selfcare-data";
+import { SelfCareEntry, saveEntryToDb, toLocalIsoDate } from "@/lib/selfcare-data";
 import Screen1CheckIn from "@/components/screens/Screen1CheckIn";
 import Screen2Activities from "@/components/screens/Screen2Activities";
 import Screen2bDuration from "@/components/screens/Screen2bDuration";
@@ -17,7 +17,7 @@ const Index = () => {
   const [screen, setScreen] = useState<Screen>("checkin");
   const [date, setDate] = useState(new Date());
   const [entry, setEntry] = useState<SelfCareEntry>({
-    date: new Date().toISOString().split("T")[0],
+    date: toLocalIsoDate(new Date()),
     didSelfCare: null,
     activities: [],
     duration: "",
@@ -31,7 +31,7 @@ const Index = () => {
     const today = new Date();
     setDate(today);
     setEntry({
-      date: today.toISOString().split("T")[0],
+      date: toLocalIsoDate(today),
       didSelfCare: null,
       activities: [],
       duration: "",
@@ -45,7 +45,7 @@ const Index = () => {
 
   const handleDateChange = (d: Date) => {
     setDate(d);
-    setEntry((prev) => ({ ...prev, date: d.toISOString().split("T")[0] }));
+    setEntry((prev) => ({ ...prev, date: toLocalIsoDate(d) }));
   };
 
   const handleCheckIn = (didSelfCare: boolean) => {

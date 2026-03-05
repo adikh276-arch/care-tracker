@@ -59,6 +59,17 @@ export const SUPPORTIVE_STATEMENTS = [
   "Acknowledging today takes courage. You're already growing. 🌷",
 ];
 
+/**
+ * Converts a Date object to a local ISO string (YYYY-MM-DD)
+ * correctly handling the user's local timezone.
+ */
+export function toLocalIsoDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 // Helper to get Neon client
 function getSql() {
   if (!DATABASE_URL) {
@@ -76,16 +87,21 @@ export async function fetchEntries(userId: string): Promise<SelfCareEntry[]> {
       ORDER BY date DESC
     `;
 
-    return rows.map(r => ({
-      date: r.date.toISOString().split('T')[0],
-      didSelfCare: r.did_self_care,
-      activities: r.activities || [],
-      duration: r.duration || "",
-      preventionReasons: r.prevention_reasons || [],
-      helpfulType: r.helpful_type || "",
-      mood: r.mood || "",
-      moodEmoji: r.mood_emoji || "",
-    }));
+    return rows.map(r => {
+      // Postgres DATE objects might be interpreted at midnight UTC by the driver.
+      // We force it to local interpretation to avoid day-shifting.
+      const d = new Date(r.date);
+      return {
+        date: toLocalIsoDate(d),
+        didSelfCare: r.did_self_care,
+        activities: r.activities || [],
+        duration: r.duration || "",
+        preventionReasons: r.prevention_reasons || [],
+        helpfulType: r.helpful_type || "",
+        mood: r.mood || "",
+        moodEmoji: r.mood_emoji || "",
+      };
+    });
   } catch (err) {
     console.error('Error fetching entries:', err);
     return [];
@@ -127,7 +143,7 @@ export async function fetchLast7Days(userId: string): Promise<SelfCareEntry[]> {
   for (let i = 6; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().split("T")[0];
+    const dateStr = toLocalIsoDate(d);
     const found = entries.find((e) => e.date === dateStr);
     if (found) days.push(found);
   }
@@ -135,6 +151,7 @@ export async function fetchLast7Days(userId: string): Promise<SelfCareEntry[]> {
 }
 
 export function formatDateShort(dateStr: string): string {
+  // Use T00:00:00 to ensure the date is interpreted as the start of the day in LOCAL time
   const d = new Date(dateStr + "T00:00:00");
   return d.toLocaleDateString(i18n.language, { weekday: "short", month: "short", day: "numeric" });
 }
