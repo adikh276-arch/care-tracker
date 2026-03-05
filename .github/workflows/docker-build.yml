@@ -30,3 +30,5 @@ jobs:
           push: true
           platforms: linux/amd64
           tags: bunker.mantracare.com/lovable/daily_self_care_tracker:1.0
+          build-args: |
+            VITE_NEON_DATABASE_URL=${{ secrets.VITE_NEON_DATABASE_URL }}

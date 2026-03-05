@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { SelfCareEntry, saveEntry } from "@/lib/selfcare-data";
+import { SelfCareEntry, saveEntryToDb } from "@/lib/selfcare-data";
 import Screen1CheckIn from "@/components/screens/Screen1CheckIn";
 import Screen2Activities from "@/components/screens/Screen2Activities";
 import Screen2bDuration from "@/components/screens/Screen2bDuration";
@@ -8,10 +8,12 @@ import Screen4Mood from "@/components/screens/Screen4Mood";
 import Screen5Statement from "@/components/screens/Screen5Statement";
 import Screen6Review from "@/components/screens/Screen6Review";
 import Screen7History from "@/components/screens/Screen7History";
+import { useAuth } from "@/components/AuthProvider";
 
 type Screen = "checkin" | "activities" | "duration" | "noSelfCare" | "mood" | "statement" | "review" | "history";
 
 const Index = () => {
+  const { userId } = useAuth();
   const [screen, setScreen] = useState<Screen>("checkin");
   const [date, setDate] = useState(new Date());
   const [entry, setEntry] = useState<SelfCareEntry>({
@@ -71,8 +73,10 @@ const Index = () => {
     setScreen("statement");
   };
 
-  const handleStatementContinue = () => {
-    saveEntry(entry);
+  const handleStatementContinue = async () => {
+    if (userId) {
+      await saveEntryToDb(userId, entry);
+    }
     setScreen("review");
   };
 

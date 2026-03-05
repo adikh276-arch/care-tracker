@@ -2,6 +2,10 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Add build-time environment variables for Vite
+ARG VITE_NEON_DATABASE_URL
+ENV VITE_NEON_DATABASE_URL=$VITE_NEON_DATABASE_URL
+
 COPY package*.json ./
 RUN npm ci
 

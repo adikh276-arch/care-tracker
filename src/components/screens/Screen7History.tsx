@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import MobileShell from "@/components/MobileShell";
 import { Button } from "@/components/ui/button";
-import { getLast7Days, formatDateShort, SelfCareEntry } from "@/lib/selfcare-data";
-import { ArrowLeft } from "lucide-react";
+import { fetchLast7Days, formatDateShort, SelfCareEntry } from "@/lib/selfcare-data";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/components/AuthProvider";
 
 interface Screen7Props {
   onBack: () => void;
@@ -11,7 +12,20 @@ interface Screen7Props {
 
 const Screen7History = ({ onBack }: Screen7Props) => {
   const { t } = useTranslation();
-  const entries = getLast7Days();
+  const { userId } = useAuth();
+  const [entries, setEntries] = useState<SelfCareEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      if (userId) {
+        const data = await fetchLast7Days(userId);
+        setEntries(data);
+      }
+      setLoading(false);
+    };
+    loadData();
+  }, [userId]);
 
   return (
     <MobileShell>
@@ -24,7 +38,11 @@ const Screen7History = ({ onBack }: Screen7Props) => {
         </h1>
       </div>
 
-      {entries.length === 0 ? (
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : entries.length === 0 ? (
         <div className="mt-12 text-center">
           <p className="text-4xl mb-3">🫧</p>
           <p className="text-muted-foreground text-sm">{t('screens.history.subtitle') || "No entries in the last 7 days"}</p>
@@ -64,8 +82,8 @@ const DayCard = ({ entry }: { entry: SelfCareEntry }) => {
       </div>
       <div
         className={`rounded-full px-2.5 py-1 text-xs font-semibold ${entry.didSelfCare
-            ? "bg-primary/15 text-primary"
-            : "bg-secondary text-secondary-foreground"
+          ? "bg-primary/15 text-primary"
+          : "bg-secondary text-secondary-foreground"
           }`}
       >
         {entry.didSelfCare ? t('common.yes') : t('common.no')}

@@ -14,7 +14,8 @@ i18n
             escapeValue: false,
         },
         backend: {
-            loadPath: 'locales/{{lng}}/translation.json',
+            // Using absolute path with subpath for predictability in subpath hosting
+            loadPath: '/daily_self_care_tracker/locales/{{lng}}/translation.json',
         },
         detection: {
             order: ['querystring', 'cookie', 'localStorage', 'navigator', 'path', 'subdomain'],

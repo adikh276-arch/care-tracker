@@ -1,3 +1,8 @@
+import { neon } from '@neondatabase/serverless';
+import i18n from "@/i18n";
+
+const DATABASE_URL = import.meta.env.VITE_NEON_DATABASE_URL;
+
 export interface SelfCareEntry {
   date: string; // ISO date string YYYY-MM-DD
   didSelfCare: boolean | null;
@@ -54,27 +59,71 @@ export const SUPPORTIVE_STATEMENTS = [
   "Acknowledging today takes courage. You're already growing. 🌷",
 ];
 
-export function getStoredEntries(): SelfCareEntry[] {
+// Helper to get Neon client
+function getSql() {
+  if (!DATABASE_URL) {
+    throw new Error('DATABASE_URL is not set');
+  }
+  return neon(DATABASE_URL);
+}
+
+export async function fetchEntries(userId: string): Promise<SelfCareEntry[]> {
   try {
-    const data = localStorage.getItem("selfcare-entries");
-    return data ? JSON.parse(data) : [];
-  } catch {
+    const sql = getSql();
+    const rows = await sql`
+      SELECT * FROM selfcare_entries 
+      WHERE user_id = ${userId} 
+      ORDER BY date DESC
+    `;
+
+    return rows.map(r => ({
+      date: r.date.toISOString().split('T')[0],
+      didSelfCare: r.did_self_care,
+      activities: r.activities || [],
+      duration: r.duration || "",
+      preventionReasons: r.prevention_reasons || [],
+      helpfulType: r.helpful_type || "",
+      mood: r.mood || "",
+      moodEmoji: r.mood_emoji || "",
+    }));
+  } catch (err) {
+    console.error('Error fetching entries:', err);
     return [];
   }
 }
 
-export function saveEntry(entry: SelfCareEntry) {
-  const entries = getStoredEntries();
-  const idx = entries.findIndex((e) => e.date === entry.date);
-  if (idx >= 0) entries[idx] = entry;
-  else entries.push(entry);
-  localStorage.setItem("selfcare-entries", JSON.stringify(entries));
+export async function saveEntryToDb(userId: string, entry: SelfCareEntry) {
+  try {
+    const sql = getSql();
+    await sql`
+      INSERT INTO selfcare_entries (
+        user_id, date, did_self_care, activities, duration, 
+        prevention_reasons, helpful_type, mood, mood_emoji
+      )
+      VALUES (
+        ${userId}, ${entry.date}, ${entry.didSelfCare}, ${entry.activities}, ${entry.duration},
+        ${entry.preventionReasons}, ${entry.helpfulType}, ${entry.mood}, ${entry.moodEmoji}
+      )
+      ON CONFLICT (user_id, date) DO UPDATE SET
+        did_self_care = EXCLUDED.did_self_care,
+        activities = EXCLUDED.activities,
+        duration = EXCLUDED.duration,
+        prevention_reasons = EXCLUDED.prevention_reasons,
+        helpful_type = EXCLUDED.helpful_type,
+        mood = EXCLUDED.mood,
+        mood_emoji = EXCLUDED.mood_emoji
+    `;
+  } catch (err) {
+    console.error('Error saving entry:', err);
+    throw err;
+  }
 }
 
-export function getLast7Days(): SelfCareEntry[] {
-  const entries = getStoredEntries();
+export async function fetchLast7Days(userId: string): Promise<SelfCareEntry[]> {
+  const entries = await fetchEntries(userId);
   const today = new Date();
   const days: SelfCareEntry[] = [];
+
   for (let i = 6; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
@@ -84,8 +133,6 @@ export function getLast7Days(): SelfCareEntry[] {
   }
   return days;
 }
-
-import i18n from "@/i18n";
 
 export function formatDateShort(dateStr: string): string {
   const d = new Date(dateStr + "T00:00:00");
