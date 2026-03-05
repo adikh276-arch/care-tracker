@@ -1,16 +1,18 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import MobileShell from "@/components/MobileShell";
 import OptionChip from "@/components/OptionChip";
 import ContinueButton from "@/components/ContinueButton";
 import { Input } from "@/components/ui/input";
 import { ACTIVITIES } from "@/lib/selfcare-data";
 import { Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface Screen2Props {
   onContinue: (activities: string[]) => void;
 }
 
 const Screen2Activities = ({ onContinue }: Screen2Props) => {
+  const { t } = useTranslation();
   const [selected, setSelected] = useState<string[]>([]);
   const [customActivity, setCustomActivity] = useState("");
   const [customList, setCustomList] = useState<string[]>([]);
@@ -40,13 +42,13 @@ const Screen2Activities = ({ onContinue }: Screen2Props) => {
   return (
     <MobileShell step={2} totalSteps={5}>
       <h1 className="font-display text-2xl font-bold tracking-tight">
-        Your Activities 🎯
+        {t('screens.activities.title')}
       </h1>
-      <p className="mt-1 text-sm text-muted-foreground">Which self-care activities did you do today?</p>
+      <p className="mt-1 text-sm text-muted-foreground">{t('screens.activities.subtitle')}</p>
 
       <div className="mt-6 flex flex-wrap gap-2">
         {ACTIVITIES.map((a) => (
-          <OptionChip key={a} label={a} selected={selected.includes(a)} onToggle={() => toggle(a)} />
+          <OptionChip key={a} label={t(`data.activities.${a}`)} selected={selected.includes(a)} onToggle={() => toggle(a)} />
         ))}
         {customList.map((a) => (
           <OptionChip key={a} label={a} selected={selected.includes(a)} onToggle={() => toggle(a)} />
@@ -58,7 +60,7 @@ const Screen2Activities = ({ onContinue }: Screen2Props) => {
           value={customActivity}
           onChange={(e) => setCustomActivity(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Add your own activity…"
+          placeholder={t('common.continue')}
           className="rounded-xl"
         />
         <button

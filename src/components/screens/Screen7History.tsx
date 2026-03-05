@@ -1,13 +1,16 @@
+import React from "react";
 import MobileShell from "@/components/MobileShell";
 import { Button } from "@/components/ui/button";
 import { getLast7Days, formatDateShort, SelfCareEntry } from "@/lib/selfcare-data";
 import { ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface Screen7Props {
   onBack: () => void;
 }
 
 const Screen7History = ({ onBack }: Screen7Props) => {
+  const { t } = useTranslation();
   const entries = getLast7Days();
 
   return (
@@ -17,14 +20,14 @@ const Screen7History = ({ onBack }: Screen7Props) => {
           <ArrowLeft className="h-5 w-5" />
         </button>
         <h1 className="font-display text-2xl font-bold tracking-tight">
-          Weekly History 📅
+          {t('screens.history.title')}
         </h1>
       </div>
 
       {entries.length === 0 ? (
         <div className="mt-12 text-center">
           <p className="text-4xl mb-3">🫧</p>
-          <p className="text-muted-foreground text-sm">No entries in the last 7 days</p>
+          <p className="text-muted-foreground text-sm">{t('screens.history.subtitle') || "No entries in the last 7 days"}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -36,7 +39,7 @@ const Screen7History = ({ onBack }: Screen7Props) => {
 
       <div className="mt-8 pb-4">
         <Button onClick={onBack} className="w-full rounded-2xl py-5" variant="outline">
-          Back to Check-In
+          {t('common.back')}
         </Button>
       </div>
     </MobileShell>
@@ -44,9 +47,11 @@ const Screen7History = ({ onBack }: Screen7Props) => {
 };
 
 const DayCard = ({ entry }: { entry: SelfCareEntry }) => {
+  const { t } = useTranslation();
+
   const keyInfo = entry.didSelfCare
-    ? entry.activities[0] || "Self-care done"
-    : entry.preventionReasons[0] || "No self-care";
+    ? (entry.activities[0] ? t(`data.activities.${entry.activities[0]}`) : t('common.yes'))
+    : (entry.preventionReasons[0] ? t(`data.reasons.${entry.preventionReasons[0]}`) : t('common.no'));
 
   return (
     <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4">
@@ -58,13 +63,12 @@ const DayCard = ({ entry }: { entry: SelfCareEntry }) => {
         <p className="text-xs text-muted-foreground truncate">{keyInfo}</p>
       </div>
       <div
-        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-          entry.didSelfCare
+        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${entry.didSelfCare
             ? "bg-primary/15 text-primary"
             : "bg-secondary text-secondary-foreground"
-        }`}
+          }`}
       >
-        {entry.didSelfCare ? "Yes" : "No"}
+        {entry.didSelfCare ? t('common.yes') : t('common.no')}
       </div>
     </div>
   );

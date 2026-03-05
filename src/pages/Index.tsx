@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { SelfCareEntry, saveEntry } from "@/lib/selfcare-data";
 import Screen1CheckIn from "@/components/screens/Screen1CheckIn";
 import Screen2Activities from "@/components/screens/Screen2Activities";

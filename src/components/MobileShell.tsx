@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface MobileShellProps {
@@ -16,9 +16,8 @@ const MobileShell = ({ children, step, totalSteps }: MobileShellProps) => {
             {Array.from({ length: totalSteps }).map((_, i) => (
               <div
                 key={i}
-                className={`h-1.5 flex-1 rounded-full transition-colors duration-500 ${
-                  i < step ? "bg-primary" : "bg-muted"
-                }`}
+                className={`h-1.5 flex-1 rounded-full transition-colors duration-500 ${i < step ? "bg-primary" : "bg-muted"
+                  }`}
               />
             ))}
           </div>

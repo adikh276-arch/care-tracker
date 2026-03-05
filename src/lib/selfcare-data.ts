@@ -85,7 +85,9 @@ export function getLast7Days(): SelfCareEntry[] {
   return days;
 }
 
+import i18n from "@/i18n";
+
 export function formatDateShort(dateStr: string): string {
   const d = new Date(dateStr + "T00:00:00");
-  return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+  return d.toLocaleDateString(i18n.language, { weekday: "short", month: "short", day: "numeric" });
 }

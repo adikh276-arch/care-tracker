@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import MobileShell from "@/components/MobileShell";
 import OptionChip from "@/components/OptionChip";
 import ContinueButton from "@/components/ContinueButton";
+import { useTranslation } from "react-i18next";
 
 interface Screen1Props {
   date: Date;
@@ -16,19 +17,20 @@ interface Screen1Props {
 }
 
 const Screen1CheckIn = ({ date, onDateChange, onContinue }: Screen1Props) => {
+  const { t } = useTranslation();
   const [answer, setAnswer] = useState<boolean | null>(null);
 
   return (
     <MobileShell step={1} totalSteps={5}>
       <h1 className="font-display text-2xl font-bold tracking-tight">
-        Self-Care Check-In 🌿
+        {t('screens.checkin.title')}
       </h1>
-      <p className="mt-1 text-sm text-muted-foreground">How did you care for yourself today?</p>
+      <p className="mt-1 text-sm text-muted-foreground">{t('screens.checkin.subtitle')}</p>
 
       {/* Date */}
       <div className="mt-6">
         <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Date
+          {t('common.date')}
         </label>
         <Popover>
           <PopoverTrigger asChild>
@@ -57,11 +59,11 @@ const Screen1CheckIn = ({ date, onDateChange, onContinue }: Screen1Props) => {
       {/* Self-care question */}
       <div className="mt-8">
         <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Did you practice self-care today? *
+          {t('screens.checkin.question')}
         </label>
         <div className="mt-3 flex gap-3">
-          <OptionChip label="Yes" selected={answer === true} onToggle={() => setAnswer(true)} emoji="✅" />
-          <OptionChip label="No" selected={answer === false} onToggle={() => setAnswer(false)} emoji="❌" />
+          <OptionChip label={t('common.yes')} selected={answer === true} onToggle={() => setAnswer(true)} emoji="✅" />
+          <OptionChip label={t('common.no')} selected={answer === false} onToggle={() => setAnswer(false)} emoji="❌" />
         </div>
       </div>
 
